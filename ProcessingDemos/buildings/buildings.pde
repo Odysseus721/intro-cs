@@ -1,62 +1,47 @@
 
 float X;
 float Y;
-
+//for gradient effect
+float r;
+float g;
+float b;
 
 boolean roof;
 void setup() {
+gradient(220, 2,0,250,180,5 ) ;
 
 
-
-  //outputs to the GUI: draws something
+ 
   size(500, 500);
 
-  //window3;
-  //window4;
-  //
+ 
   X=random(0, 500);
   Y=random(300, 200);
 }
 
-void teardrop(float xOffset, float yOffset) {
-  push();
-  noStroke();
-  fill(#2B64FC);
-  translate( xOffset, yOffset );
-  circle(1, 1, 4);
-  scale(.1);
-  triangle(0, 0, 20, 0, 10, -20);
-
-
-
-  triangle(0, 0, 20, 0, 10, -20);
-  scale(.00005);
-  pop();
-}
 
 void draw() {
-  
-
-  for (int i=0; i <width; i+= 50) {
-    noStroke();
-    line(i, 0, i, height);
-    stroke(#033BFF);
-    background(0, 0, random(0, 255));
-  }
-  for (int j=0; j<height; j+= 50) {
-    noStroke();
-    line(0, j, width, j);
-    stroke(#033BFF);
-  }
- 
-
-
-building(X+120, Y-10);
-building(X+170, Y-25);
-building(X-170, Y+2);
-building(X-300, Y-12);
-building(X-10, Y-38);
-
+  circle(180,40,20);
+  //so i could fill the rect without effecting buildings
+push();
+noStroke();
+fill(255, 100,0);
+ rect(0,60, 500, 40);
+pop();
+//so i could take out any stroke around building
+push();
+noStroke();
+building(X+120, Y);
+building(X+170, Y);
+building(X-170, Y);
+building(X-300, Y);
+building(X-10, Y);
+building(X+120, Y);
+building(X+170, Y);
+building(X-170, Y);
+building(X-300, Y);
+building(X-10, Y);
+pop();
 }
 void mousePressed() {
   println(mouseX, mouseY);
@@ -93,6 +78,14 @@ void building(float X, float Y) {
 
   pop();
 }
-void graident(float r1,float g1,float b1, float r2, float g2, float b2){
-for (int i=0;i<height; i++)
+void gradient(float r1, float g1, float b1, 
+              float r2, float g2, float b2) {
+  for (int i = 0; i < height; i++ ) {
+    r = map(i, 0, height-1, r1, r2);
+    g = map(i, 0, height-1, g1, g2);
+    b = map(i, 0, height-1, b1, b2);
+
+    stroke(r, g, b);
+    line(0, i, width, i);
+  }
 }
