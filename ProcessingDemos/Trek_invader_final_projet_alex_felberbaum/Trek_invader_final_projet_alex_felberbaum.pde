@@ -9,7 +9,11 @@ float shipY;
 float shipSize;
 float borgX[]= new float[8];
 float borgY[]= new float[8];
+float borgXSpeed[]= new float[8];
+float borgYSpeed[]= new float[8];
 float borgSize;
+//borg speed x/y
+
 
 
 void setup() {
@@ -18,7 +22,8 @@ void setup() {
   shipY=0;
   shipSize=0;
 
-  for (int a = 0; a < 8; a++) {
+  for (int a = 0; a < borgX.length; a++) {
+
     //used so does not collide with ship
     float x = random (0, width/4);
     float y= random (0, height/4);
@@ -27,6 +32,8 @@ void setup() {
 
     borgX[a]= random(x, x2);
     borgY[a]= random(y, y2);
+    borgXSpeed[a]= random(-3, 3);
+    borgYSpeed[a]= random(-5, 5);
   }
 }
 void draw() {
@@ -35,45 +42,24 @@ void draw() {
   for (int a = 0; a < 8; a++) {
     borgSphere(borgX[a], borgY[a], 20);
 
-    borgX[a]=borgX[a]+1;
+    borgX[a]=borgX[a]+borgXSpeed[a];
+    borgY[a]=borgY[a]+borgYSpeed[a];
 
-    if ((borgX[a]>=500)&&(borgY[a]<0)) {
-      borgY[a]=borgY[a]+2;
-      borgX[a]=borgX[a]+2;
+    if (borgX[a]>=width) {
+      borgXSpeed[a]= -abs(borgXSpeed[a]);
     }
-    if ((borgX[a]>=500)&&(borgY[a]>0)) {
-      borgY[a]=borgY[a]-2;
-      borgX[a]=borgX[a]-2;
+    if (borgX[a]<=0) {
+      borgXSpeed[a]= abs(borgXSpeed[a]);
     }
-    if ((borgY[a]>=500)&&(borgX[a]<0)) {
-      borgY[a]=borgY[a]+2;
-      borgX[a]=borgX[a]+2;
+    if (borgY[a]>=height) {
+      borgYSpeed[a]= -abs(borgYSpeed[a]);
     }
-
-    if ((borgY[a]<=0)&&(borgX[a]>0)) {
-      borgY[a]=borgY[a]+2;
-      borgX[a]=borgX[a]-2;
+    if (borgY[a]<=0) {
+      borgYSpeed[a]= abs(borgYSpeed[a]);
     }
-    //next
-    if ((borgX[a]<=0)&&(borgY[a]<0)) {
-      borgY[a]=borgY[a]+2;
-      borgX[a]=borgX[a]+2;
-    }
-    if ((borgX[a]<=0)&&(borgY[a]>0)) {
-      borgY[a]=borgY[a]-2;
-      borgX[a]=borgX[a]+2;
-    }
-    if ((borgY[a]<=0)&&(borgX[a]<0)) {
-      borgY[a]=borgY[a]+2;
-      borgX[a]=borgX[a]+2;
-    }
-  
-  if ((borgY[a]<0)&&(borgX[a]>0)) {
-    borgY[a]=borgY[a]-2;
-    borgX[a]=borgX[a]-2;
-  }
   }
 }
+
 void LLC(float shipX, float shipY, float shipSize) {
   fill(207);
   //cargo bays and engineering(center of ship with warp core that holds it together)
@@ -105,9 +91,43 @@ void borgSpecial(float borgX, float borgY, float borgSize) {
 
 void borgBoss(float borgX, float borgY, float borgSize) {
 }
+//to set firing command for photon torpedo
+void keyPressed() {
+  if (key == 'f') torpedo();
+  for (int a = 0; a < 8; a++) {
+    rectangleCircleCollisionCheck(mouseX, mouseY, 1, 1, borgX[a], borgY[a], borgSize);
+    if (true);
+    println("boom");
+  }
+}
+
+
+//to make phonon torpedo
+void torpedo() {
+  push();
+  stroke(#DE3207);
+  line(250, 250, mouseX, mouseY);
+  rect( mouseX, mouseY, 1, 1);
+  pop();
+}
 
 
 
 void mousePressed() {
   println(mouseX, mouseY);
+}
+//i put a rectangle hidden under mouse so that it could register as a circle rectangle collision.
+boolean rectangleCircleCollisionCheck(float rx, float ry, float rw, float rh,
+  float cx, float cy, float cd) {
+    float testX = cx;
+    float testY = cy;
+    
+    if(cx < rx) testX = rx;
+    else if(cx > rx + rw) testX = rx + rw;
+    if(cy < ry) testY = ry;
+    else if(cy > ry + rh) testY = ry + rh;
+    float dX = cx - testX;
+    float dY = cy - testY;
+    float distance = sqrt(dX*dX + dY*dY);
+    return (distance < cd/2);
 }
