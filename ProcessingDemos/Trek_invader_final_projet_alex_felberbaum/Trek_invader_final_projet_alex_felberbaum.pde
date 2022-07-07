@@ -4,24 +4,41 @@ Final project- alex felberbaum
  note: not to be confused with star trek( voyages of the starship enterprise)
  7/6/22
  */
+//controls x,y ,sizeof starhsip
 float shipX;
 float shipY;
 float shipSize;
+//to control x,y, and size of borg
 float borgX[]= new float[8];
 float borgY[]= new float[8];
-float borgXSpeed[]= new float[8];
-float borgYSpeed[]= new float[8];
 float borgSize;
 //borg speed x/y
+float borgXSpeed[]= new float[8];
+float borgYSpeed[]= new float[8];
 
-
-
+//to maintain kill count
+int kC=0;
+//time remaining
+int timeRemaining=100;
+int currentSec = second();
+//health remaining(when fighting borg cube only)
+int health;
+//to make rounds
+int round=1;
+//fromm multi-screen demo
+String screen = "start";
 void setup() {
+  //https://player.whooshkaa.com/episode?id=700255
+
   size (500, 500);
   shipX=0;
   shipY=0;
   shipSize=0;
-
+  //to set time remaining
+  timeRemaining=timeRemaining-second();
+  if (kC==8) {
+    round=2;
+  }
   for (int a = 0; a < borgX.length; a++) {
 
     //used so does not collide with ship
@@ -37,26 +54,13 @@ void setup() {
   }
 }
 void draw() {
-  background(0);
-  LLC(250, 250, 50);
-  for (int a = 0; a < 8; a++) {
-    borgSphere(borgX[a], borgY[a], 20);
-
-    borgX[a]=borgX[a]+borgXSpeed[a];
-    borgY[a]=borgY[a]+borgYSpeed[a];
-
-    if (borgX[a]>=width) {
-      borgXSpeed[a]= -abs(borgXSpeed[a]);
-    }
-    if (borgX[a]<=0) {
-      borgXSpeed[a]= abs(borgXSpeed[a]);
-    }
-    if (borgY[a]>=height) {
-      borgYSpeed[a]= -abs(borgYSpeed[a]);
-    }
-    if (borgY[a]<=0) {
-      borgYSpeed[a]= abs(borgYSpeed[a]);
-    }
+  //from multi-screen demo
+  if (screen == "start") {
+    startScreen();
+  } else if (screen == "ingame") {
+    gameScreen();
+  } else if (screen == "gameOver") {
+    gameOverScreen();
   }
 }
 
@@ -78,36 +82,40 @@ void LLC(float shipX, float shipY, float shipSize) {
   fill(330);
   circle(shipX, shipY, shipSize/3);
 }
-//small fighters
-void borgCubeFighter(float borgX, float borgY, float borgSize) {
+//cube
+void borgCube(float borgX, float borgY, float borgSize) {
+  fill(#165505);
+  square(borgX, borgY, borgSize);
 }
 //borg s
 void borgSphere(float borgX, float borgY, float borgSize) {
   circle(borgX, borgY, borgSize);
 }
 
-void borgSpecial(float borgX, float borgY, float borgSize) {
-}
 
-void borgBoss(float borgX, float borgY, float borgSize) {
-}
 //to set firing command for photon torpedo
 void keyPressed() {
-  if (key == 'f') torpedo();
-  for (int a = 0; a < 8; a++) {
-    rectangleCircleCollisionCheck(mouseX, mouseY, 1, 1, borgX[a], borgY[a], borgSize);
-    if (true);
-    println("boom");
+  if (key == 'f') {
+    torpedo();
+    for (int a = 0; a < 8; a++) {
+      if (circleCircleCollisionCheck(mouseX, mouseY, 20, borgX[a], borgY[a], borgSize)) {
+        kC=kC+1;
+        borgX[a]=1000;
+        borgY[a]=1000;
+        borgXSpeed[a]=0;
+        borgYSpeed[a]=0;
+      }
+    }
   }
 }
 
-
 //to make phonon torpedo
+
+
 void torpedo() {
   push();
   stroke(#DE3207);
   line(250, 250, mouseX, mouseY);
-  rect( mouseX, mouseY, 1, 1);
   pop();
 }
 
@@ -115,19 +123,109 @@ void torpedo() {
 
 void mousePressed() {
   println(mouseX, mouseY);
+  //from multi screen demo
+  if (screen == "start") {
+    screen = "ingame"; // If you click while on
+    // the start screen, change to the game screen
+  } else if (screen == "ingame") {
+  } else if (screen == "gameOver") {
+    resetGame();
+  }
 }
-//i put a rectangle hidden under mouse so that it could register as a circle rectangle collision.
-boolean rectangleCircleCollisionCheck(float rx, float ry, float rw, float rh,
-  float cx, float cy, float cd) {
-    float testX = cx;
-    float testY = cy;
-    
-    if(cx < rx) testX = rx;
-    else if(cx > rx + rw) testX = rx + rw;
-    if(cy < ry) testY = ry;
-    else if(cy > ry + rh) testY = ry + rh;
-    float dX = cx - testX;
-    float dY = cy - testY;
-    float distance = sqrt(dX*dX + dY*dY);
-    return (distance < cd/2);
+
+//this is so the game an register if the photon torpedo hit the borg ship
+boolean circleCircleCollisionCheck(float x1, float y1, float d1, float x2, float y2, float d2) {
+  float distance = dist(x1, y1, x2, y2);
+  return (distance <= d1/2 + d2/2);
+}
+//screens
+void startScreen() {
+  background(0);
+  push();
+  //title
+  fill(#72C8F5);
+  textSize(80);
+  text("TREK-INVADER",10,100);
+  pop();
+  //charecter diolouge(needed to introduce mission)
+  textSize(10);
+  text("Commander Spot: Welcome to the USS LLC captain, our situation is urgent, many borg vessels are headed towards earth",0,250);
+  text("And since the fleet is in the gamma quadrant you must command the LLC, our best and strongest ship, to victory.",20,265);
+  text("Use 'f' to fire and aim by hovering your mouse over the target. to start just click anywhere.",70, 280);
+  text("Now good luck, live long and prosper.", 180,295);
+}
+
+void gameScreen() {
+  background(0);
+  //displays(originally were individualy but decided to put in one big push();/pop();)
+  push();
+  fill(255);
+  //display "kill count"(i was originaly going to have as float but decided to make intiger)
+  push();
+  textSize(12);
+  text("Ships Destroyed:", 30, 20);
+  //to display "time remaining"
+  text("Time Remaining:", 385, 20);
+  //to display "round"
+  text("Round:", 30, 470);
+  pop();
+  push();
+  //to display kill count
+  textSize(20);
+  text(kC, 60, 40);
+  text(timeRemaining-second(), 420, 40);
+  text(round, 75, 470);
+  pop();
+  pop();
+  //ship
+  LLC(250, 250, 50);
+  for (int a = 0; a < 8; a++) {
+    //to spawn borg sphere
+    borgSphere(borgX[a], borgY[a], 20);
+
+    borgX[a]=borgX[a]+borgXSpeed[a];
+    borgY[a]=borgY[a]+borgYSpeed[a];
+
+    if (borgX[a]>=width) {
+      borgXSpeed[a]= -abs(borgXSpeed[a]);
+    }
+    if (borgX[a]<=0) {
+      borgXSpeed[a]= abs(borgXSpeed[a]);
+    }
+    if (borgY[a]>=height) {
+      borgYSpeed[a]= -abs(borgYSpeed[a]);
+    }
+    if (borgY[a]<=0) {
+      borgYSpeed[a]= abs(borgYSpeed[a]);
+    }
+  
+
+
+  if (currentSec!= second()) {
+    timeRemaining--;
+    if (timeRemaining <1) {
+      screen= "game over";
+    }
+    currentSec=second();
+  }
+  //to change round(needed to be both in setup and here)
+  if (kC==8) {
+    round=2;
+  }
+  if (round==2){
+  borgCube(borgX[a],borgY[a],50);
+  
+  
+  }
+  }
+}
+void gameOverScreen() {
+  // Do everything you would want in draw() while on
+  // the game over screen
+  
+}
+
+void resetGame() {
+  // Reset all your variables! Think of this like
+  // a second setup() function
 }
