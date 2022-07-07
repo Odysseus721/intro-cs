@@ -21,8 +21,6 @@ int kC=0;
 //time remaining
 int timeRemaining=100;
 int currentSec = second();
-//health remaining(when fighting borg cube only)
-int health;
 //to make rounds
 int round=1;
 //fromm multi-screen demo
@@ -41,7 +39,7 @@ void setup() {
   }
   for (int a = 0; a < borgX.length; a++) {
 
-    //used so does not collide with ship
+    //used to spawn random borg
     float x = random (0, width/4);
     float y= random (0, height/4);
     float x2 = random(500, width*.75);
@@ -227,6 +225,7 @@ void gameScreen() {
 void gameScreen2() {
   timeRemaining=timeRemaining+30;
   timeRemaining=timeRemaining--;
+  
   kC=0;
   background(0);
   //displays(originally were individualy but decided to put in one big push();/pop();)
@@ -252,26 +251,19 @@ void gameScreen2() {
   //ship
   LLC(250, 250, 50);
   for (int a = 0; a < 8; a++) {
+     float x = random (0, width);
+    float y= random (0, height);
+    borgX[a]= x;
+    borgY[a]=y;
+    borgXSpeed[a]= random(-3, 3);
+    borgYSpeed[a]= random(-5, 5);
     //to spawn borg sphere
-    borgCube(borgX[a], borgY[a], 20);
+    borgCube(borgX[a], borgY[a], borgSize+50);
 
     borgX[a]=borgX[a]+borgXSpeed[a];
     borgY[a]=borgY[a]+borgYSpeed[a];
 
-    if (borgX[a]>=width) {
-      borgXSpeed[a]= -abs(borgXSpeed[a]);
-    }
-    if (borgX[a]<=0) {
-      borgXSpeed[a]= abs(borgXSpeed[a]);
-    }
-    if (borgY[a]>=height) {
-      borgYSpeed[a]= -abs(borgYSpeed[a]);
-    }
-    if (borgY[a]<=0) {
-      borgYSpeed[a]= abs(borgYSpeed[a]);
-    }
-
-
+    
 
     if (currentSec!= second()) {
       timeRemaining--;
@@ -294,6 +286,21 @@ void gameOverScreen() {
 }
 
 void resetGame() {
-  // Reset all your variables! Think of this like
-  // a second setup() function
+float borgX[]= new float[8];
+float borgY[]= new float[8];
+float borgXSpeed[]= new float[8];
+float borgYSpeed[]= new float[8];
+
+//to maintain kill count
+ kC=0;
+//time remaining
+ timeRemaining=100;
+ currentSec = second();
+
+
+//to make rounds
+round=1;
+//fromm multi-screen demo
+String screen = "start";
+  
 }
