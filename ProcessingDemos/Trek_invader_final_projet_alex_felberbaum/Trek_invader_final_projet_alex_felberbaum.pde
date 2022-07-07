@@ -59,8 +59,12 @@ void draw() {
     startScreen();
   } else if (screen == "ingame") {
     gameScreen();
+  } else if (screen == "ingame2") {
+    gameScreen2();
   } else if (screen == "gameOver") {
     gameOverScreen();
+  } else if (screen == "gameReset") {
+    resetGame();
   }
 }
 
@@ -128,6 +132,7 @@ void mousePressed() {
     screen = "ingame"; // If you click while on
     // the start screen, change to the game screen
   } else if (screen == "ingame") {
+  } else if (screen == "ingame2") {
   } else if (screen == "gameOver") {
     resetGame();
   }
@@ -145,14 +150,14 @@ void startScreen() {
   //title
   fill(#72C8F5);
   textSize(80);
-  text("TREK-INVADER",10,100);
+  text("TREK-INVADER", 10, 100);
   pop();
   //charecter diolouge(needed to introduce mission)
   textSize(10);
-  text("Commander Spot: Welcome to the USS LLC captain, our situation is urgent, many borg vessels are headed towards earth",0,250);
-  text("And since the fleet is in the gamma quadrant you must command the LLC, our best and strongest ship, to victory.",20,265);
-  text("Use 'f' to fire and aim by hovering your mouse over the target. to start just click anywhere.",70, 280);
-  text("Now good luck, live long and prosper.", 180,295);
+  text("Commander Spot: Welcome to the USS LLC captain, our situation is urgent, many borg vessels are headed towards earth", 0, 250);
+  text("And since the fleet is in the gamma quadrant you must command the LLC, our best and strongest ship, to victory.", 20, 265);
+  text("Use 'f' to fire and aim by hovering your mouse over the target. to start just click anywhere.", 70, 280);
+  text("Now good luck, live long and prosper.", 180, 295);
 }
 
 void gameScreen() {
@@ -198,31 +203,94 @@ void gameScreen() {
     if (borgY[a]<=0) {
       borgYSpeed[a]= abs(borgYSpeed[a]);
     }
-  
 
 
-  if (currentSec!= second()) {
-    timeRemaining--;
-    if (timeRemaining <1) {
-      screen= "game over";
+
+    if (currentSec!= second()) {
+      timeRemaining--;
+      if (timeRemaining <1) {
+        screen= "game over";
+      }
+      currentSec=second();
     }
-    currentSec=second();
-  }
-  //to change round(needed to be both in setup and here)
-  if (kC==8) {
-    round=2;
-  }
-  if (round==2){
-  borgCube(borgX[a],borgY[a],50);
-  
-  
-  }
+    //to reset after loss
+    if (currentSec<1) {
+      screen="resetGame";
+    }
+    //to change round(needed to be both in setup and here)
+    if (kC==8) {
+      round=2;
+      screen="ingame2";
+    }
   }
 }
+void gameScreen2() {
+  timeRemaining=timeRemaining+30;
+  timeRemaining=timeRemaining--;
+  kC=0;
+  background(0);
+  //displays(originally were individualy but decided to put in one big push();/pop();)
+  push();
+  fill(255);
+  //display "kill count"(i was originaly going to have as float but decided to make intiger)
+  push();
+  textSize(12);
+  text("Ships Destroyed:", 30, 20);
+  //to display "time remaining"
+  text("Time Remaining:", 385, 20);
+  //to display "round"
+  text("Round:", 30, 470);
+  pop();
+  push();
+  //to display kill count
+  textSize(20);
+  text(kC, 60, 40);
+  text(timeRemaining-second(), 420, 40);
+  text(round, 75, 470);
+  pop();
+  pop();
+  //ship
+  LLC(250, 250, 50);
+  for (int a = 0; a < 8; a++) {
+    //to spawn borg sphere
+    borgCube(borgX[a], borgY[a], 20);
+
+    borgX[a]=borgX[a]+borgXSpeed[a];
+    borgY[a]=borgY[a]+borgYSpeed[a];
+
+    if (borgX[a]>=width) {
+      borgXSpeed[a]= -abs(borgXSpeed[a]);
+    }
+    if (borgX[a]<=0) {
+      borgXSpeed[a]= abs(borgXSpeed[a]);
+    }
+    if (borgY[a]>=height) {
+      borgYSpeed[a]= -abs(borgYSpeed[a]);
+    }
+    if (borgY[a]<=0) {
+      borgYSpeed[a]= abs(borgYSpeed[a]);
+    }
+
+
+
+    if (currentSec!= second()) {
+      timeRemaining--;
+      if (timeRemaining <1) {
+        screen= "game over";
+      }
+      currentSec=second();
+    }
+    //to change round(needed to be both in setup and here)
+    if (kC==8) {
+      screen="gameOver";
+    }
+  }
+}
+
 void gameOverScreen() {
-  // Do everything you would want in draw() while on
-  // the game over screen
-  
+  background(0);
+  text("congradulations, captain, the borg are gone",200,250);
+  text("click anywhere to restart",200,265);
 }
 
 void resetGame() {
